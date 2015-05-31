@@ -1,5 +1,4 @@
 # waifu2x-converter-glsl
-====
 
 waifu2x-converter-cpp (https://github.com/WL-Amigo/waifu2x-converter-cpp) を元に  
 OpenGLで計算処理を行うように改造したものです。
