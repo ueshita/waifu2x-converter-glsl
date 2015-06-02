@@ -10,15 +10,13 @@ OpenGLを使いGPUで計算処理を行うように改造したものです。
 waifu2x-converter-glsl.exeをwaifu2x-converter.exeにリネームすれば
 GUIフロントエンドがほぼそのまま使えると思います。
 
-exeバイナリのダウンロードはこちら↓
-
+exeバイナリのダウンロードはこちら↓  
 https://github.com/ueshita/waifu2x-converter-glsl/releases
 
  動作環境
 ----------
 
-OpenGL 3.1が動作すること。
-
+OpenGL 3.1が動作すること。  
 （Intel HD Graphics 5000で動作確認済）
 
 
