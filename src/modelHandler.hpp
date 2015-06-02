@@ -10,6 +10,8 @@
 #include <cstdint>
 #include <cstdlib>
 
+#include "filterGL.h"
+
 namespace w2xc {
 
 class Model {
@@ -21,6 +23,8 @@ private:
 	std::vector<double> biases;
 	int kernelSize;
 	int nJob;
+
+	Waifu2xShader shader;
 
 	Model(){}; // cannot use no-argument constructor
 
@@ -56,23 +60,40 @@ public:
 	bool filter(std::vector<cv::Mat> &inputPlanes,
 			std::vector<cv::Mat> &outputPlanes);
 
-	bool filterGL(std::vector<cv::Mat> &inputPlanes,
-		std::vector<cv::Mat> &outputPlanes);
+	bool loadGLShader();
+
+	bool filterGL(int modelIndex);
 
 	bool saveModelToBin(std::ostream& binFile);
 };
 
+
 class modelUtility {
+
+private:
+	static modelUtility* instance;
+	int nJob;
+	cv::Size blockSplittingSize;
+	modelUtility() :
+			nJob(4), blockSplittingSize(512,512) {
+	}
+	;
 
 public:
 	static bool generateModelFromJSON(const std::string &fileName,
 			std::vector<std::unique_ptr<Model> > &models);
-	
 	static bool generateModelFromBin(const std::string &fileName,
 		std::vector<std::unique_ptr<Model> > &models);
-	
 	static bool saveModelToBin(const std::string &fileName,
 		std::vector<std::unique_ptr<Model> > &models);
+
+	static modelUtility& getInstance();
+	bool setNumberOfJobs(int setNJob);
+	int getNumberOfJobs();
+	bool setBlockSize(cv::Size size);
+	bool setBlockSizeExp2Square(int exp);
+	cv::Size getBlockSize();
+
 };
 
 }

@@ -110,9 +110,7 @@ bool modelUtility::generateModelFromJSON(const std::string &fileName,
 
 	picojson::array& objectArray = jsonValue.get<picojson::array>();
 	for (auto&& obj : objectArray) {
-		std::unique_ptr<Model> m = std::unique_ptr<Model>(
-				new Model(obj.get<picojson::object>()));
-		models.push_back(std::move(m));
+		models.emplace_back(new Model(obj.get<picojson::object>()));
 	}
 
 	return true;
@@ -196,6 +194,16 @@ bool Model::saveModelToBin(std::ostream& binFile)
 	return true;
 }
 
+
+modelUtility * modelUtility::instance = nullptr;
+
+modelUtility& modelUtility::getInstance(){
+	if(instance == nullptr){
+		instance = new modelUtility();
+	}
+	return *instance;
+}
+
 bool modelUtility::generateModelFromBin(const std::string &fileName,
 	std::vector<std::unique_ptr<Model> > &models) {
 	
@@ -234,6 +242,34 @@ bool modelUtility::saveModelToBin(const std::string &fileName,
 	}
 
 	return true;
+}
+
+
+bool modelUtility::setNumberOfJobs(int setNJob){
+	if(setNJob < 1)return false;
+	nJob = setNJob;
+	return true;
+};
+
+int modelUtility::getNumberOfJobs(){
+	return nJob;
+}
+
+bool modelUtility::setBlockSize(cv::Size size){
+	if(size.width < 0 || size.height < 0)return false;
+	blockSplittingSize = size;
+	return true;
+}
+
+bool modelUtility::setBlockSizeExp2Square(int exp){
+	if(exp < 0)return false;
+	int length = (int)std::pow(2, exp);
+	blockSplittingSize = cv::Size(length, length);
+	return true;
+}
+
+cv::Size modelUtility::getBlockSize(){
+	return blockSplittingSize;
 }
 
 // for debugging

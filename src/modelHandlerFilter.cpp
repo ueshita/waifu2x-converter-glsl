@@ -69,7 +69,7 @@ bool Model::filterWorker(std::vector<cv::Mat> &inputPlanes,
 	// filter processing
 	// input : inputPlanes
 	// kernel : weightMatrices
-	for (int opIndex = beginningIndex; opIndex < (beginningIndex + nWorks);
+	for (unsigned int opIndex = beginningIndex; opIndex < (beginningIndex + nWorks);
 			opIndex++) {
 
 		int wMatIndex = nInputPlanes * opIndex;

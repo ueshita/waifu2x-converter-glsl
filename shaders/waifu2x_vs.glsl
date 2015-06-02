@@ -1,4 +1,3 @@
-#version 140
 
 in vec2 a_position;
 in vec2 a_texCoord;

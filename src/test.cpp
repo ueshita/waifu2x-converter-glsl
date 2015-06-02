@@ -13,16 +13,17 @@ using namespace cv;
 
 const char *modelPath    = "models/scale2.0x_model.json";
 const char *modelPathBin = "models/scale2.0x_model.bin";
-const char *inputPath  = "256.jpg";
+const char *inputPath  = "testdata/256.jpg";
 const char *outputPath = "out.jpg";
 
 int main(int argc, char** argv)
 {
-	std::vector<std::unique_ptr<w2xc::Model> > models;
+	std::vector<std::unique_ptr<w2xc::Model>> models;
 
 	//w2xc::modelUtility::generateModelFromJSON(modelPath, models);
 	//w2xc::modelUtility::saveModelToBin(modelPathBin, models);
 	//models.clear();
+
 	w2xc::modelUtility::generateModelFromBin(modelPathBin, models);
 	
 	std::cout << "reading model data seems to be succeed." << std::endl;
@@ -49,16 +50,20 @@ int main(int argc, char** argv)
 	cv::cvtColor(imageYUV, imageYUV, COLOR_RGB2YUV);
 	cv::split(imageYUV, imageSprit);
 	
-	std::unique_ptr<std::vector<cv::Mat> > inputPlanes = std::unique_ptr<
-			std::vector<cv::Mat> >(new std::vector<cv::Mat>(1));
-	std::unique_ptr<std::vector<cv::Mat> > outputPlanes = std::unique_ptr<
-			std::vector<cv::Mat> >(new std::vector<cv::Mat>(32));
+	//std::unique_ptr<std::vector<cv::Mat> > inputPlanes = std::unique_ptr<
+	//		std::vector<cv::Mat> >(new std::vector<cv::Mat>(1));
+	//std::unique_ptr<std::vector<cv::Mat> > outputPlanes = std::unique_ptr<
+	//		std::vector<cv::Mat> >(new std::vector<cv::Mat>(32));
+	//
+	//inputPlanes->clear();
+	//inputPlanes->push_back(imageY);
 
-	inputPlanes->clear();
-	inputPlanes->push_back(imageY);
+	filterGLInit(image2x.size().width, image2x.size().height);
+	filterGLSetInputData(imageY);
 
-	auto size = image2x.size();
-	filterGLInit(size.width, size.height);
+	for (auto&& model : models) {
+		model->loadGLShader();
+	}
 
 	auto start = std::chrono::system_clock::now();
 
@@ -69,17 +74,19 @@ int main(int argc, char** argv)
 		//	"input:" << inputPlanes->size() << 
 		//	",output:" << outputPlanes->size() << std::endl;
 		
-		//if(!models[index]->filter(*inputPlanes, *outputPlanes)){
-		if(!models[index]->filterGL(*inputPlanes, *outputPlanes)){
+		//if(!models[index].filter(*inputPlanes, *outputPlanes)){
+		if(!models[index]->filterGL(index)){
 			std::exit(-1);
 		}
 		
-		if (index != models.size() - 1) {
-			inputPlanes = std::move(outputPlanes);
-			outputPlanes = std::unique_ptr<std::vector<cv::Mat> >(
-					new std::vector<cv::Mat>(models[index + 1]->getNOutputPlanes()));
-		}
+		//if (index != models.size() - 1) {
+		//	inputPlanes = std::move(outputPlanes);
+		//	outputPlanes = std::unique_ptr<std::vector<cv::Mat> >(
+		//			new std::vector<cv::Mat>(models[index + 1].getNOutputPlanes()));
+		//}
 	}
+
+	filterGLGetOutputData(imageSprit[0]);
 	
 	auto end = std::chrono::system_clock::now();
 	auto diff = end - start;
@@ -90,7 +97,7 @@ int main(int argc, char** argv)
 
 	filterGLRelease();
 
-	outputPlanes->at(0).copyTo(imageSprit[0]);
+	//outputPlanes->at(0).copyTo(imageSprit[0]);
 	cv::Mat result;
 	cv::merge(imageSprit,result);
 	cv::cvtColor(result,result,COLOR_YUV2RGB);

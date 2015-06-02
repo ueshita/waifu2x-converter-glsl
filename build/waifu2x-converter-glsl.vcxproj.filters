@@ -7,9 +7,11 @@
     <ClCompile Include="..\src\modelHandlerFilterGL.cpp" />
     <ClCompile Include="..\src\filterGL.cpp" />
     <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\convertRoutine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\modelHandler.hpp" />
     <ClInclude Include="..\src\filterGL.h" />
+    <ClInclude Include="..\src\convertRoutine.hpp" />
   </ItemGroup>
 </Project>
