@@ -14,7 +14,7 @@
 int main(int argc, char** argv) {
 
 	// definition of command line arguments
-	TCLAP::CmdLine cmd("waifu2x reimplementation using OpenGL shader", ' ', "1.1.0");
+	TCLAP::CmdLine cmd("waifu2x reimplementation using OpenGL shader", ' ', "1.1.1");
 
 	TCLAP::ValueArg<std::string> cmdInputFile("i", "input_file",
 			"path to input image file (you should input full path)", true, "",
@@ -45,6 +45,10 @@ int main(int argc, char** argv) {
 	TCLAP::ValueArg<std::string> cmdModelPath("", "model_dir",
 			"path to custom model directory (don't append last / )", false,
 			"models", "string", cmd);
+	
+	TCLAP::ValueArg<int> cmdNumberOfJobs("j", "jobs",
+			"number of threads launching at the same time (dummy command)", false, 4, "integer",
+			cmd);
 	
 	TCLAP::ValueArg<int> cmdBlockSize("b", "block_size",
 			"block size of split processing. default=512", false, 512, "integer",
@@ -126,7 +130,7 @@ int main(int argc, char** argv) {
 				nIteration++) {
 
 			std::cout << "#" << std::to_string(nIteration + 1)
-					<< "2x Scaling..." << std::endl;
+					<< " 2x Scaling..." << std::endl;
 
 			cv::Mat imageYUV;
 			cv::Size imageSize = image.size();
