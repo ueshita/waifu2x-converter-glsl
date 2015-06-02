@@ -28,14 +28,14 @@ OpenGL 3.1が動作すること。
 
 以下のコマンドは、使い方を画面に出力します。
 ```
-waifu2x-converter.exe --help
+waifu2x-converter-glsl.exe --help
 ```
 
 以下のコマンドは、画像変換を実行するコマンドの例です。
 ```
-waifu2x-converter.exe -i C:\Users\amigo\Pictures\mywaifu.png -m noise_scale -j 8 --scale_ratio 1.6 --noise_level 2
+waifu2x-converter-glsl.exe -i mywaifu.png -m noise_scale -j 8 --scale_ratio 1.6 --noise_level 2
 ```
-以上を実行すると、`C:\Users\amigo\Pictures\mywaifu(noise_scale)(Level2)(x1.600000).png`に変換結果が保存されます。
+以上を実行すると、`mywaifu(noise_scale)(Level2)(x1.600000).png`に変換結果が保存されます。
 
 本ソフトでは、以下のオプションを指定することが出来ます。
 
@@ -103,6 +103,7 @@ waifu2x-converter.exe -i C:\Users\amigo\Pictures\mywaifu.png -m noise_scale -j 8
     - 低メモリ消費に抑えるための内部での画像分割処理を追加(出力は従来通りです)
     - 60%処理を高速化
 
+<!-- -->
 
  謝辞
 ------
