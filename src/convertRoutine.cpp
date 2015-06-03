@@ -76,6 +76,7 @@ static bool convertWithModelsBasic(cv::Mat &inputPlane, cv::Mat &outputPlane,
 			for (; progress < index; progress++)               std::cout << "=";
 			for (; progress < (int)models.size(); progress++)  std::cout << " ";
 			std::cout << "]";
+			std::cout.flush();
 
 			if (index >= (int)models.size()) {
 				break;

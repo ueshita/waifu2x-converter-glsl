@@ -31,12 +31,9 @@ void filterGLInit(uint32_t width, uint32_t height)
 	glfwMakeContextCurrent(window);
 	glGenTextures(2, textureBuffers);
 	
-	std::cout << glGetString(GL_VERSION) << std::endl;
+	//std::cout << glGetString(GL_VERSION) << std::endl;
 	//std::cout << glGetString(GL_VENDOR) << std::endl;
 	//std::cout << glGetString(GL_EXTENSIONS) << std::endl;
-	
-	//GLint fragmentUniformVectors = 0;
-	//glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, &fragmentUniformVectors);
 	
 #ifdef __glew_h__
 	GLenum glewResult = glewInit();
@@ -75,7 +72,7 @@ void filterGLSetInputData(cv::Mat& inputPlane)
 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, textureBuffers[0]);
 	void *pixels = inputPlane.data;
-	size_t size = (size_t)(inputPlane.dataend - inputPlane.data);
+	//size_t size = (size_t)(inputPlane.dataend - inputPlane.data);
 	
 	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, 
 		planeSize.width, planeSize.height, 1, GL_RED, GL_FLOAT, pixels);
@@ -91,9 +88,14 @@ void filterGLGetOutputData(cv::Mat& outputPlane)
 	glGenBuffers(1, &outputPixelBuffer);
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, outputPixelBuffer);
 	glBufferData(GL_PIXEL_PACK_BUFFER, planeSize.width * planeSize.height * sizeof(float), 0, GL_DYNAMIC_DRAW);
+	CHECK_GL_ERROR("glBufferData");
+	
 	glReadPixels(0, 0, planeSize.width, planeSize.height, GL_RED, GL_FLOAT, 0);
+	CHECK_GL_ERROR("glReadPixels");
 	
 	void *resultAddr = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+	CHECK_GL_ERROR("glMapBuffer");
+	
 	memcpy(outputPlane.data, resultAddr, opSize.width * opSize.height * sizeof(float));
 	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
@@ -173,7 +175,7 @@ bool filterGLProcess(Waifu2xShader& shader,
 	glDeleteBuffers(1, &vao);
 
 	//glFlush();
-	//glFinish();
+	glFinish();
 
 	return true;
 }
