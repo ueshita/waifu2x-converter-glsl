@@ -1,4 +1,5 @@
 
+#include <exception>
 #include "convertRoutine.hpp"
 #include "filterGL.h"
 
@@ -28,6 +29,9 @@ bool convertWithModels(cv::Mat &inputPlane, cv::Mat &outputPlane,
 				cv::BORDER_REPLICATE);
 
 		bool ret = convertWithModelsBasic(tempMat, outputPlane, models);
+		if (ret == false) {
+			return false;
+		}
 
 		tempMat = outputPlane(cv::Range(nModel, outputSize.height + nModel),
 				cv::Range(nModel, outputSize.width + nModel));
@@ -47,35 +51,53 @@ static bool convertWithModelsBasic(cv::Mat &inputPlane, cv::Mat &outputPlane,
 
 	cv::Size size = inputPlane.size();
 
-	// initialize GL filter core
-	filterGLInit(size.width, size.height);
+	try {
+		// initialize GL filter core
+		filterGLInit(size.width, size.height);
 
-	// setup shader per model
-	for (int index = 0; index < (int)models.size(); index++) {
-		if (!models[index]->loadGLShader()) {
-			std::exit(-1);
+		// setup shader per model
+		for (int index = 0; index < (int)models.size(); index++) {
+			if (!models[index]->loadGLShader()) {
+				std::exit(-1);
+			}
 		}
-	}
 
-	// set the input image data
-	cv::Mat tempPlane = cv::Mat::zeros(size, CV_32FC1);
-	inputPlane.copyTo(tempPlane);
-	filterGLSetInputData(tempPlane);
+		// set the input image data
+		cv::Mat tempPlane = cv::Mat::zeros(size, CV_32FC1);
+		inputPlane.copyTo(tempPlane);
+		filterGLSetInputData(tempPlane);
 
-	for (int index = 0; index < (int)models.size(); index++) {
-		std::cout << "Iteration #" << (index + 1) << "..." << std::endl;
-		// core processing
-		if (!models[index]->filterGL(index)) {
-			std::exit(-1);
+		for (int index = 0; index <= (int)models.size(); index++) {
+			
+			//std::cout << "Iteration #" << (index + 1) << "..." << std::endl;
+			
+			std::cout << "\r[";
+			int progress = 0;
+			for (; progress < index; progress++)               std::cout << "=";
+			for (; progress < (int)models.size(); progress++)  std::cout << " ";
+			std::cout << "]";
+
+			if (index >= (int)models.size()) {
+				break;
+			}
+			
+			// core processing
+			if (!models[index]->filterGL(index)) {
+				std::exit(-1);
+			}
 		}
+		// get the output image data
+		filterGLGetOutputData(tempPlane);
+		tempPlane.copyTo(outputPlane);
+		
+		std::cout << " ok" << std::endl;
+		
+		// finalize GL filter core
+		filterGLRelease();
+	} catch (std::exception& e) {
+		std::cout << e.what() << std::endl;
+		return false;
 	}
-
-	// get the output image data
-	filterGLGetOutputData(tempPlane);
-	tempPlane.copyTo(outputPlane);
-	
-	// finalize GL filter core
-	filterGLRelease();
 
 	return true;
 
@@ -105,7 +127,7 @@ static bool convertWithModelsBlockSplit(cv::Mat &inputPlane,
 			static_cast<float>(outputSize.height)
 					/ static_cast<float>(blockSize.height - 2 * nModel)));
 	
-	std::cout << "split blocks (" << splitRows << "," << splitColumns << ") ..."
+	std::cout << "split blocks " << splitRows << "x" << splitColumns << " ..."
 			  << std::endl;
 
 	// start to convert
@@ -134,7 +156,7 @@ static bool convertWithModelsBlockSplit(cv::Mat &inputPlane,
 						c * (blockSize.width - 2 * nModel) + blockSize.width);
 			}
 
-			std::cout << "start process block (" << c << "," << r << ") ..."
+			std::cout << "process block (" << (c + 1) << "," << (r + 1) << ") ..."
 					<< std::endl;
 			if (!convertWithModelsBasic(processBlock, processBlockOutput,
 					models)) {
